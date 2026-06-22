@@ -1,7 +1,7 @@
 services:
   - type: web
     name: rag-app-sit
-    env: python
+    runtime: python
     branch: develop
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -12,7 +12,7 @@ services:
 
   - type: web
     name: rag-app-prod
-    env: python
+    runtime: python
     branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT

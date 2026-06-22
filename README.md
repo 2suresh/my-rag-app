@@ -3,7 +3,8 @@
 A retrieval-augmented generation API. Ask a question at `/query`; the app embeds
 it, retrieves the most relevant chunks from Pinecone, and has a Groq-hosted LLM
 answer using only that context. Deployed free on **Render** with separate
-**SIT** and **PROD** environments and automated **GitHub Actions** CI/CD.
+**SIT** and **PROD** environments. Tests run in **GitHub Actions**; deploys are
+handled automatically by **Render** (no GitHub secrets, no keys in the repo).
 
 ```
 Request → FastAPI (/query) → LangGraph: retrieve (Pinecone) → generate (Groq) → answer
@@ -99,18 +100,23 @@ Run `python -m scripts.ingest` once per environment, with the matching
 
 Test: `curl https://rag-app-sit.onrender.com/health`
 
-## Step 5 — Wire up CI/CD (auto-deploy on push)
-1. In Render, each service → **Settings** → **Deploy Hook** → copy the URL.
-2. In GitHub repo → **Settings** → **Secrets and variables** → **Actions**,
-   add repository secrets:
-   - `PINECONE_API_KEY`, `GROQ_API_KEY`
-   - `RENDER_DEPLOY_HOOK_SIT` (the develop/SIT hook)
-   - `RENDER_DEPLOY_HOOK_PROD` (the main/PROD hook)
-3. Now every push runs the tests; if they pass, GitHub triggers the right
-   Render deploy: `develop` → SIT, `main` → PROD.
+## Step 5 — Auto-deploy (no GitHub secrets needed)
+Render deploys on its own — no deploy hooks, no GitHub secrets, no keys in code.
+1. When you connected the repo via Blueprint, **Auto-Deploy** is on by default.
+   Confirm in each service → **Settings** → **Build & Deploy** → Auto-Deploy = Yes.
+2. That's it: pushing to `develop` redeploys SIT, pushing to `main` redeploys PROD.
+3. Your API keys live only in each service's **Environment** tab (Step 4) —
+   Render's own encrypted secret store, never in the repo or in GitHub.
+
+The GitHub Actions workflow (`.github/workflows/ci.yml`) now only runs the
+tests (which are mocked, so they need no keys). Deployment is fully Render's job.
 
 Workflow: build a feature → push to `develop` → verify on SIT →
 merge `develop` into `main` → PROD deploys automatically.
+
+> Why not put keys in the code? Anything committed to git is permanent and
+> visible to anyone with repo access; leaked API keys get abused within minutes.
+> Keeping them in Render's Environment tab is both safer *and* less work.
 
 ---
 

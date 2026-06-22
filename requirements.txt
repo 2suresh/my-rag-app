@@ -1,7 +1,10 @@
-fastapi
-uvicorn[standard]
-langchain
-langgraph
-langchain-anthropic
-pinecone-client
-python-dotenv
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+langchain>=0.3.0
+langgraph>=0.2.0
+langchain-groq>=0.2.0
+pinecone>=5.1.0
+sentence-transformers>=3.0.0
+python-dotenv>=1.0.0
+pytest>=8.0.0
+httpx>=0.27.0
